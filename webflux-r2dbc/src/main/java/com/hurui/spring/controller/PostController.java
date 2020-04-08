@@ -117,4 +117,24 @@ public class PostController {
 				.doOnError(onError -> logger.warn("Completed request with error! Request ID: [{}]", requestId))
 				.doOnSuccess(onSuccess -> logger.info("Completed request successfully... Request ID: [{}]", requestId));
 	}
+	
+	@GetMapping(value = "/api/jdbc/mockjdbccall")
+	public Mono<ResponseEntity<CommonHttpRespBodyModel>> mockJdbcCall(HttpServletRequest request){
+		UUID requestId = UUID.randomUUID();
+		logger.info("Handling request from: [{}] | Assigning RequestID: [{}]", request.getRequestURI(), requestId);
+		return jdbcRepository.mockSimpleJdbcCallAsync(dataSource, "")
+				.map(mapper -> new ResponseEntity<>(
+							new CommonHttpRespBodyModel(requestId,
+									HttpStatus.OK.value(), 
+									mapper),
+							HttpStatus.OK
+						))
+				.onErrorResume(fallback -> Mono.just(new ResponseEntity<>(
+						new CommonHttpRespBodyModel(requestId,
+								HttpStatus.INTERNAL_SERVER_ERROR.value(), 
+								"INTERNAL SERVER ERROR, error message: [" + fallback.getMessage() + "]"),
+						HttpStatus.INTERNAL_SERVER_ERROR)))
+				.doOnError(onError -> logger.warn("Completed request with error! Request ID: [{}]", requestId))
+				.doOnSuccess(onSuccess -> logger.info("Completed request successfully... Request ID: [{}]", requestId));
+	}
 }
