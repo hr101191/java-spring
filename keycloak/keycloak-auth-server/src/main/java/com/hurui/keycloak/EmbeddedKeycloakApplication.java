@@ -9,7 +9,7 @@ import org.keycloak.services.util.JsonConfigProviderFactory;
 import org.springframework.stereotype.Component;
 
 @Component
-@ApplicationPath("/")
+@ApplicationPath("/auth")
 public class EmbeddedKeycloakApplication extends KeycloakApplication {
 	
 	protected void loadConfig() {

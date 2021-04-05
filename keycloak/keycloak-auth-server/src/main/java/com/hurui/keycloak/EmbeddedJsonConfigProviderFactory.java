@@ -1,46 +1,35 @@
 package com.hurui.keycloak;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.util.Optional;
 
 import org.keycloak.Config;
-import org.keycloak.services.ServicesLogger;
 import org.keycloak.services.util.JsonConfigProviderFactory;
 import org.keycloak.util.JsonSerialization;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
 public class EmbeddedJsonConfigProviderFactory extends JsonConfigProviderFactory {
 	
+	private static final Logger logger = LoggerFactory.getLogger(JsonConfigProviderFactory.class);
+	
 	@Override
 	public Optional<Config.ConfigProvider> create() {
 	
 		JsonNode node = null;
-	
 		try {
-			String configDir = System.getProperty("jboss.server.config.dir");
-			if (configDir != null) {
-				File f = new File(configDir + File.separator + "keycloak-server.json");
-				if (f.isFile()) {
-					ServicesLogger.LOGGER.loadingFrom(f.getAbsolutePath());
-					node = JsonSerialization.mapper.readTree(f);
-				}
+			//We try to retrieve the config via System properties set via the ApplicationContextInitializer class
+			Optional<String> configOptional = Optional.ofNullable(System.getProperty("application.keycloak.config"));
+			if(configOptional.isPresent()) {
+				node = JsonSerialization.mapper.readTree(configOptional.get());
+			} else {
+				logger.warn("Failed to get keycloak json config from system Properties. Exiting the program with status -1.");
+				System.exit(-1);
 			}
-	
-			if (node == null) {
-				URL resource = Thread.currentThread().getContextClassLoader().getResource("META-INF/keycloak-server.json");
-				if (resource != null) {
-					ServicesLogger.LOGGER.loadingFrom(resource);
-					node = JsonSerialization.mapper.readTree(resource);
-					//TODO: read value from application properties to manipulate the keycloak-server.json
-					//in order to set values such as jdbc properties
-				}
-			}
-		} catch (IOException e) {
-			//TODO: use slf4j logger instead of jboss logger
-			//LOG.warn("Failed to load JSON config", e);
+		} catch (IOException ex) {
+			logger.error("Failed to parse keycloak json config, stacktrace:", ex);
 		}
 		return createJsonProvider(node);
 	}
