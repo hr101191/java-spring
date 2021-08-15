@@ -42,7 +42,7 @@
 	"mapStorage": {
 		"provider": "${keycloak.mapStorage.provider:concurrenthashmap}",
 		"concurrenthashmap": {
-			"dir": "${project.build.directory:target}"
+			"dir": "${java.io.tmpdir}"
 		}
 	},
 	"userFederatedStorage": {
