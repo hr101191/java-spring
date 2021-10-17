@@ -1,0 +1,11 @@
+--liquibase formatted sql
+--adapted for h2
+--source: https://github.com/spring-projects/spring-session/blob/2.5.1/spring-session-jdbc/src/main/resources/org/springframework/session/jdbc/schema-h2.sql
+--changeset: spring_session_attributes:create
+CREATE TABLE IF NOT EXISTS SPRING_SESSION_ATTRIBUTES (
+	SESSION_PRIMARY_ID CHAR(36) NOT NULL,
+	ATTRIBUTE_NAME VARCHAR(200) NOT NULL,
+	ATTRIBUTE_BYTES LONGVARBINARY NOT NULL,
+	CONSTRAINT SPRING_SESSION_ATTRIBUTES_PK PRIMARY KEY (SESSION_PRIMARY_ID, ATTRIBUTE_NAME),
+	CONSTRAINT SPRING_SESSION_ATTRIBUTES_FK FOREIGN KEY (SESSION_PRIMARY_ID) REFERENCES SPRING_SESSION(PRIMARY_ID) ON DELETE CASCADE
+);

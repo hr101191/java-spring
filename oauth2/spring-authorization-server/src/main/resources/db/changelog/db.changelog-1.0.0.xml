@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd     http://www.liquibase.org/xml/ns/dbchangelog     http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+	<changeSet id="oauth2_registered_client:create" author="hurui" dbms="h2">
+		<sqlFile path="/db/changelog/scripts/oauth2_registered_client_h2_1.0.0.sql" splitStatements="true" stripComments="true" />
+	</changeSet>
+	<changeSet id="oauth2_registered_client:create" author="hurui" dbms="mariadb">
+		<sqlFile path="/db/changelog/scripts/oauth2_registered_client_mariadb_1.0.0.sql" splitStatements="true" stripComments="true" />
+	</changeSet>
+	<changeSet id="oauth2_authorization:create" author="hurui" dbms="h2">
+		<sqlFile path="/db/changelog/scripts/oauth_authorization_h2_1.0.0.sql" splitStatements="true" stripComments="true" />
+	</changeSet>
+	<changeSet id="oauth2_authorization:create" author="hurui" dbms="mariadb">
+		<sqlFile path="/db/changelog/scripts/oauth_authorization_mariadb_1.0.0.sql" splitStatements="true" stripComments="true" />
+	</changeSet>
+	<changeSet id="oauth2_authorization_consent:create" author="hurui" dbms="h2">
+		<sqlFile path="/db/changelog/scripts/oauth_authorization_consent_h2_1.0.0.sql" splitStatements="true" stripComments="true" />
+	</changeSet>
+	<changeSet id="oauth2_authorization_consent:create" author="hurui" dbms="mariadb">
+		<sqlFile path="/db/changelog/scripts/oauth_authorization_consent_mariadb_1.0.0.sql" splitStatements="true" stripComments="true" />
+	</changeSet>
+	<changeSet id="spring_session:create" author="hurui" dbms="h2">
+		<sqlFile path="/db/changelog/scripts/spring_session_h2_1.0.0.sql" splitStatements="true" stripComments="true" />
+	</changeSet>
+	<changeSet id="spring_session:create" author="hurui" dbms="mariadb">
+		<sqlFile path="/db/changelog/scripts/spring_session_mariadb_1.0.0.sql" splitStatements="true" stripComments="true" />
+	</changeSet>
+	<changeSet id="spring_session_attributes:create" author="hurui" dbms="h2">
+		<sqlFile path="/db/changelog/scripts/spring_session_attributes_h2_1.0.0.sql" splitStatements="true" stripComments="true" />
+	</changeSet>
+	<changeSet id="spring_session_attributes:create" author="hurui" dbms="mariadb">
+		<sqlFile path="/db/changelog/scripts/spring_session_attributes_mariadb_1.0.0.sql" splitStatements="true" stripComments="true" />
+	</changeSet>
+	<changeSet id="users:create" author="hurui" dbms="h2">
+		<sqlFile path="/db/changelog/scripts/users_h2_1.0.0.sql" splitStatements="true" stripComments="true" />
+	</changeSet>
+	<changeSet id="users:create" author="hurui" dbms="mariadb">
+		<sqlFile path="/db/changelog/scripts/users_mariadb_1.0.0.sql" splitStatements="true" stripComments="true" />
+	</changeSet>
+	<changeSet id="authorities:create" author="hurui" dbms="h2">
+		<sqlFile path="/db/changelog/scripts/authorities_h2_1.0.0.sql" splitStatements="true" stripComments="true" />
+	</changeSet>
+	<changeSet id="authorities:create" author="hurui" dbms="mariadb">
+		<sqlFile path="/db/changelog/scripts/authorities_mariadb_1.0.0.sql" splitStatements="true" stripComments="true" />
+	</changeSet>
+</databaseChangeLog>
