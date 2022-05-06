@@ -30,4 +30,5 @@ public class RestTemplateConfig {
         HttpComponentsClientHttpRequestFactory httpComponentsClientHttpRequestFactory = new HttpComponentsClientHttpRequestFactory(httpClient);
         return new RestTemplate(httpComponentsClientHttpRequestFactory);
     }
+
 }

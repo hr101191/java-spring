@@ -72,4 +72,51 @@ public class ConfigId implements Serializable {
     public int hashCode() {
         return Objects.hash(label, profile, key);
     }
+
+    public static ConfigIdBuilder builder() {
+        return new ConfigIdBuilder();
+    }
+
+    public static class ConfigIdBuilder {
+
+        private String application;
+
+        private String profile;
+
+        private String label;
+
+        private String key;
+
+        public ConfigIdBuilder() {
+        }
+
+        public ConfigIdBuilder setApplication(String application) {
+            this.application = application;
+            return this;
+        }
+
+        public ConfigIdBuilder setProfile(String profile) {
+            this.profile = profile;
+            return this;
+        }
+
+        public ConfigIdBuilder setLabel(String label) {
+            this.label = label;
+            return this;
+        }
+
+        public ConfigIdBuilder setKey(String key) {
+            this.key = key;
+            return this;
+        }
+
+        public ConfigId build() {
+            ConfigId configId = new ConfigId();
+            configId.setApplication(this.application);
+            configId.setProfile(this.profile);
+            configId.setLabel(this.label);
+            configId.setKey(this.key);
+            return configId;
+        }
+    }
 }

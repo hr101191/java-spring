@@ -1,20 +1,29 @@
 package com.hurui.model;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.databind.PropertyNamingStrategies;
-import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class VaultResponse {
 
+    @JsonAlias(value = {"request_id"})
     private String requestId;
+
+    @JsonAlias(value = {"lease_id"})
     private String leaseId;
+
     private Boolean renewable;
+
+    @JsonAlias(value = {"lease_duration"})
     private Long leaseDuration;
+
     private Data data;
+
+    @JsonAlias(value = {"wrap_info"})
     private String wrapInfo;
+
     private String warnings;
+
     private String auth;
 
     public VaultResponse() {

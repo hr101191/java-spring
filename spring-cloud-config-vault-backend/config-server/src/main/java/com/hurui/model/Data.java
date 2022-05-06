@@ -1,16 +1,16 @@
 package com.hurui.model;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.databind.PropertyNamingStrategies;
-import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 import java.util.Map;
 
-@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Data {
 
     private Map<String, String> data;
+
+    @JsonAlias(value = {"meta_date"})
     private MetaData metaData;
 
     public Data() {
