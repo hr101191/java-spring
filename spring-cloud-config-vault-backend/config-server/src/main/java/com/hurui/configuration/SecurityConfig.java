@@ -41,6 +41,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 })
                 .and()
                 .csrf(AbstractHttpConfigurer::disable)
+                .headers().frameOptions().disable()
+                .and()
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic()
                 .and()
@@ -48,7 +50,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                     session.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
                 })
                 .authorizeRequests(authorize -> {
-                    authorize.requestMatchers(PathRequest.toH2Console()).permitAll();
+                    authorize.requestMatchers(PathRequest.toStaticResources().atCommonLocations(), PathRequest.toH2Console()).permitAll();
                     authorize.anyRequest().authenticated();
                 });
     }
