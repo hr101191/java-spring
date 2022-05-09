@@ -1,6 +1,8 @@
 package com.hurui.service;
 
 import com.hurui.entity.SpringConfigUser;
+import com.hurui.entity.SpringConfigUserId;
+import com.hurui.model.Data;
 import com.hurui.model.SpringConfigUserPrincipal;
 import com.hurui.model.VaultResponse;
 import com.hurui.repository.SpringConfigUserRepository;
@@ -23,7 +25,6 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @Transactional
@@ -60,15 +61,24 @@ public class SpringConfigUserServiceImpl implements SpringConfigUserService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Optional<SpringConfigUser> springConfigUserOptional = springConfigUserRepository.findById(username);
+        Optional<SpringConfigUser> springConfigUserOptional = springConfigUserRepository.findById(
+                SpringConfigUserId.builder()
+                        .setUsername(username)
+                        .build()
+        );
         if(springConfigUserOptional.isPresent()) {
             return SpringConfigUserPrincipal.builder()
                     .setSpringConfigUser(springConfigUserOptional.get())
                     .build();
         } else {
-            SpringConfigUser springConfigUser = new SpringConfigUser("", "", false);
             return SpringConfigUserPrincipal.builder()
-                    .setSpringConfigUser(springConfigUser)
+                    .setSpringConfigUser(
+                            SpringConfigUser.builder()
+                                    .setUsername("")
+                                    .setPassword(this.passwordEncoder.encode(""))
+                                    .setEnabled(Boolean.FALSE)
+                                    .build()
+                    )
                     .build();
         }
     }
@@ -87,11 +97,15 @@ public class SpringConfigUserServiceImpl implements SpringConfigUserService {
             ResponseEntity<VaultResponse> responseEntity = this.restTemplate.exchange(url, HttpMethod.GET, new HttpEntity<>(httpHeaders), VaultResponse.class);
             if(responseEntity.getStatusCode().is2xxSuccessful()) {
                 VaultResponse vaultResponse = responseEntity.getBody();
-                Map<String, String> userMap = vaultResponse.getData().getData();
-                userMap.forEach((username, password) -> {
-                    SpringConfigUser user = new SpringConfigUser(username, this.passwordEncoder.encode(password), Boolean.TRUE);
-                    users.add(user);
-                });
+                Optional.ofNullable(vaultResponse.getData())
+                        .map(Data::getData)
+                        .ifPresentOrElse(userMap -> userMap.forEach((username, password) -> users.add(
+                                SpringConfigUser.builder()
+                                        .setUsername(username)
+                                        .setPassword(this.passwordEncoder.encode(password))
+                                        .setEnabled(Boolean.TRUE)
+                                        .build()
+                        )), () -> logger.warn("Failed to map user data from Vault Response. Vault Response Body: {}", vaultResponse));
             } else {
                 logger.warn("Expecting 2xx success http status code from Vault API. Actual http status code: {}", responseEntity.getStatusCode().value());
             }

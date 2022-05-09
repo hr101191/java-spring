@@ -1,6 +1,7 @@
 package com.hurui.service;
 
 import com.hurui.entity.Config;
+import com.hurui.model.Data;
 import com.hurui.model.VaultResponse;
 import com.hurui.repository.ConfigRepository;
 import com.hurui.util.VaultConstants;
@@ -20,6 +21,7 @@ import org.springframework.web.client.RestTemplate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Transactional
 @Service
@@ -54,39 +56,38 @@ public class ConfigServiceImpl implements ConfigService {
         //Optionally a jwt token can be accepted if vault is secured by an openid provider. Use the restTemplate to fetch the jwt token from an openid provider.
         MultiValueMap<String, String> httpHeaders = new LinkedMultiValueMap<>();
         httpHeaders.add(VaultConstants.VAULT_AUTHENTICATION_HEADER, this.vaultToken);
-        this.secretStoreMap.forEach((k, v) -> {
-            v.forEach(secretName -> {
-                try {
-                    String url = this.vaultUrlTemplate.replace(VaultConstants.SECRET_STORE_NAME_PLACEHOLDER, k).replace(VaultConstants.SECRET_NAME_PLACEHOLDER, secretName);
-                    logger.info("Polling application configurations from vault. Url: {}", url);
-                    ResponseEntity<VaultResponse> responseEntity = this.restTemplate.exchange(url, HttpMethod.GET, new HttpEntity<>(httpHeaders), VaultResponse.class);
-                    if(responseEntity.getStatusCode().is2xxSuccessful()) {
-                        VaultResponse vaultResponse = responseEntity.getBody();
-                        Map<String, String> configMap = vaultResponse.getData().getData();
-                        configMap.forEach((springConfigKey, springConfigValue) -> {
-                            Config config = new Config(k, secretName, label, springConfigKey, springConfigValue);
-                            configs.add(config);
-                        });
-                    } else {
-                        logger.warn("Expecting 2xx success http status code from Vault API. Actual http status code: {}", responseEntity.getStatusCode().value());
-                    }
-                } catch (HttpStatusCodeException ex) {
-                    logger.error(
-                            "Expecting 2xx success http status code from Vault API. Actual http status code: {} | Response Body: {} | Stacktrace: ",
-                            ex.getStatusCode().value(),
-                            ex.getResponseBodyAsString(),
-                            ex
-                    );
-                } catch (Exception ex) {
-                    logger.error("Failed to connect to Vault server. Stacktrace: ", ex);
-                }
-                if(configs.size() > 0) {
-                    configRepository.saveAll(configs);
-                    logger.info("Application: {} | Profile: {} | Label: {} | Successfully synchronized all configuration with remote Vault server.", k, secretName, label);
+        this.secretStoreMap.forEach((secretStore, secretNameCollection) -> secretNameCollection.forEach(secretName -> {
+            try {
+                String url = this.vaultUrlTemplate.replace(VaultConstants.SECRET_STORE_NAME_PLACEHOLDER, secretStore).replace(VaultConstants.SECRET_NAME_PLACEHOLDER, secretName);
+                logger.info("Polling application configurations from vault. Url: {}", url);
+                ResponseEntity<VaultResponse> responseEntity = this.restTemplate.exchange(url, HttpMethod.GET, new HttpEntity<>(httpHeaders), VaultResponse.class);
+                if(responseEntity.getStatusCode().is2xxSuccessful()) {
+                    VaultResponse vaultResponse = responseEntity.getBody();
+                    Optional.ofNullable(vaultResponse.getData())
+                            .map(Data::getData)
+                            .ifPresentOrElse(configMap -> configMap.forEach((springConfigKey, springConfigValue) -> {
+                                Config config = new Config(secretStore, secretName, label, springConfigKey, springConfigValue);
+                                configs.add(config);
+                            }), () -> logger.warn("Failed to map config data from Vault Response. Vault Response Body: {}", vaultResponse));
                 } else {
-                    logger.warn("Remote secret store is empty. Store Name: {} | Secret Name: {}", k, secretName);
+                    logger.warn("Expecting 2xx success http status code from Vault API. Actual http status code: {}", responseEntity.getStatusCode().value());
                 }
-            });
-        });
+            } catch (HttpStatusCodeException ex) {
+                logger.error(
+                        "Expecting 2xx success http status code from Vault API. Actual http status code: {} | Response Body: {} | Stacktrace: ",
+                        ex.getStatusCode().value(),
+                        ex.getResponseBodyAsString(),
+                        ex
+                );
+            } catch (Exception ex) {
+                logger.error("Failed to connect to Vault server. Stacktrace: ", ex);
+            }
+            if(configs.size() > 0) {
+                configRepository.saveAll(configs);
+                logger.info("Application: {} | Profile: {} | Label: {} | Successfully synchronized all configuration with remote Vault server.", secretStore, secretName, label);
+            } else {
+                logger.warn("Remote secret store is empty. Store Name: {} | Secret Name: {}", secretStore, secretName);
+            }
+        }));
     }
 }

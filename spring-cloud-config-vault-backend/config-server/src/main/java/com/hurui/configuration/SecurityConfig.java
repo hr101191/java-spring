@@ -46,9 +46,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic()
                 .and()
-                .sessionManagement(session -> {
-                    session.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-                })
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
                 .authorizeRequests(authorize -> {
                     authorize.requestMatchers(PathRequest.toStaticResources().atCommonLocations(), PathRequest.toH2Console()).permitAll();
                     authorize.anyRequest().authenticated();

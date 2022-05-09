@@ -1,14 +1,12 @@
 package com.hurui.entity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Objects;
 
 @Entity
 @Table(name = "spring_config_users")
+@IdClass(value = SpringConfigUserId.class)
 public class SpringConfigUser implements Serializable {
 
     private static final long serialVersionUID = 2471760682929231310L;
@@ -56,4 +54,42 @@ public class SpringConfigUser implements Serializable {
         this.enabled = enabled;
     }
 
+    public static SpringConfigUserBuilder builder() {
+        return new SpringConfigUserBuilder();
+    }
+
+    public static class SpringConfigUserBuilder {
+
+        private String username;
+
+        private String password;
+
+        private Boolean enabled;
+
+        public SpringConfigUserBuilder() {
+        }
+
+        public SpringConfigUserBuilder setUsername(String username) {
+            this.username = username;
+            return this;
+        }
+
+        public SpringConfigUserBuilder setPassword(String password) {
+            this.password = password;
+            return this;
+        }
+
+        public SpringConfigUserBuilder setEnabled(Boolean enabled) {
+            this.enabled = enabled;
+            return this;
+        }
+
+        public SpringConfigUser build() {
+            SpringConfigUser springConfigUser = new SpringConfigUser();
+            springConfigUser.setUsername(this.username);
+            springConfigUser.setPassword(this.password);
+            springConfigUser.setEnabled(this.enabled);
+            return springConfigUser;
+        }
+    }
 }

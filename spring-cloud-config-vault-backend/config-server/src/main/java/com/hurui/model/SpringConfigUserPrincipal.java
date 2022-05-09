@@ -60,8 +60,7 @@ public class SpringConfigUserPrincipal implements UserDetails {
     public boolean isEnabled() {
         return this.springConfigUser.getEnabled();
     }
-
-
+    
     public static SpringConfigUserPrincipalBuilder builder() {
         return new SpringConfigUserPrincipalBuilder();
     }
